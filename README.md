@@ -307,3 +307,10 @@ browser first and accept the certificate before using the app.
 Unsigned builds may require manual approval in macOS Gatekeeper. Add Apple
 signing and notarization secrets to GitHub Actions before distributing to users
 outside development/testing.
+
+If macOS shows `"Messages.app" is damaged and can't be opened`, remove the
+download quarantine flag after moving the app to `/Applications`:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Messages.app
+```
