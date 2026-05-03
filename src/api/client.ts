@@ -238,7 +238,7 @@ export class BlueBubblesClient {
     const payload: Record<string, unknown> = {
       chatGuid: chatGUID,
       message: text,
-      method: "private-api",
+      method: replyToGUID ? "private-api" : "apple-script",
       tempGuid: tempGuid ?? crypto.randomUUID(),
     };
     if (replyToGUID) {
