@@ -2,7 +2,27 @@
   "name": "messages",
   "private": true,
   "version": "0.1.3",
+  "description": "Native macOS iMessage desktop client for BlueBubbles, built with Tauri, React, and TypeScript.",
+  "license": "MIT",
   "type": "module",
+  "homepage": "https://github.com/oovets/messages/releases/latest",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oovets/messages.git"
+  },
+  "bugs": {
+    "url": "https://github.com/oovets/messages/issues"
+  },
+  "keywords": [
+    "macos",
+    "imessage",
+    "bluebubbles",
+    "tauri",
+    "react",
+    "typescript",
+    "desktop-app",
+    "messaging"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

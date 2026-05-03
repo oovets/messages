@@ -1,7 +1,16 @@
 # Messages
 
-Messages is a desktop-first chat client for BlueBubbles/iMessage servers.
-It is built with React, TypeScript, Vite, Tailwind CSS, Zustand, and Tauri 2.
+[![Latest release](https://img.shields.io/github/v/release/oovets/messages?label=latest%20release)](https://github.com/oovets/messages/releases/latest)
+[![macOS](https://img.shields.io/badge/macOS-desktop-black)](https://github.com/oovets/messages/releases/latest)
+[![Tauri 2](https://img.shields.io/badge/Tauri-2-24C8D8)](https://tauri.app/)
+[![React + TypeScript](https://img.shields.io/badge/React-TypeScript-3178C6)](https://react.dev/)
+
+Messages is a native macOS iMessage desktop client for BlueBubbles servers.
+It brings a clean, multi-pane messaging experience to macOS with secure
+Keychain-backed settings, rich link previews, attachments, desktop
+notifications, and a Tauri 2 app shell built with React, TypeScript, Vite,
+Tailwind CSS, and Zustand.
+
 The web UI can run in a browser during development, while the intended product
 surface is the macOS desktop app.
 
@@ -14,6 +23,17 @@ The app focuses on a lightweight native-feeling messaging experience:
 - macOS Keychain-backed credential storage in release builds.
 - Launch-at-login, tray menu, native menu, and `messages://` deep links.
 - App-wide appearance controls, theme color editing, and `Cmd +`, `Cmd -`, `Cmd 0` font scaling.
+
+## Download
+
+Download the latest macOS DMG from GitHub Releases:
+
+- [Latest release](https://github.com/oovets/messages/releases/latest)
+- [Apple Silicon DMG](https://github.com/oovets/messages/releases/download/v0.1.3/Messages_0.1.3_aarch64.dmg)
+- [Intel DMG](https://github.com/oovets/messages/releases/download/v0.1.3/Messages_0.1.3_x64.dmg)
+
+Release builds are currently unsigned unless Apple signing and notarization
+secrets are added to the repository.
 
 ## Screenshots
 
@@ -29,15 +49,6 @@ macOS releases are built by GitHub Actions from `v*` tags. The workflow builds:
 
 - Apple Silicon: `aarch64-apple-darwin` on `macos-latest`
 - Intel: `x86_64-apple-darwin` on `macos-13`
-
-Download release builds:
-
-- [Latest release](https://github.com/oovets/messages/releases/latest)
-- [Apple Silicon DMG](https://github.com/oovets/messages/releases/download/v0.1.3/Messages_0.1.3_aarch64.dmg)
-- [Intel DMG](https://github.com/oovets/messages/releases/download/v0.1.3/Messages_0.1.3_x64.dmg)
-
-Release builds are currently unsigned unless Apple signing and notarization
-secrets are added to the repository.
 
 ## Requirements
 
