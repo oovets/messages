@@ -1,0 +1,234 @@
+#[cfg(target_os = "macos")]
+use keyring::Entry;
+use serde::{Deserialize, Serialize};
+use tauri::{menu::MenuBuilder, menu::SubmenuBuilder, Emitter, Manager};
+use tauri::{tray::MouseButton, tray::MouseButtonState, tray::TrayIconBuilder, tray::TrayIconEvent};
+
+const KEYCHAIN_SERVICE: &str = "com.oovets.messages";
+const LEGACY_KEYCHAIN_SERVICE: &str = "com.oovets.imessagereact";
+const KEY_CONFIG: &str = "secure-config";
+
+const MENU_SHOW: &str = "menu_show";
+const MENU_SETTINGS: &str = "menu_settings";
+const MENU_QUIT: &str = "menu_quit";
+
+const TRAY_SHOW: &str = "tray_show";
+const TRAY_SETTINGS: &str = "tray_settings";
+const TRAY_QUIT: &str = "tray_quit";
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SecureConfig {
+    server_url: String,
+    password: String,
+}
+
+#[cfg(target_os = "macos")]
+fn keyring_entry(service: &str, key: &str) -> Result<Entry, String> {
+    Entry::new(service, key).map_err(|e| format!("keychain init failed: {e}"))
+}
+
+#[cfg(target_os = "macos")]
+fn read_secret(service: &str, key: &str) -> Result<Option<String>, String> {
+    let entry = keyring_entry(service, key)?;
+    match entry.get_password() {
+        Ok(value) => Ok(Some(value)),
+        Err(keyring::Error::NoEntry) => Ok(None),
+        Err(err) => Err(format!("keychain read failed: {err}")),
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn write_secret(key: &str, value: &str) -> Result<(), String> {
+    let entry = keyring_entry(KEYCHAIN_SERVICE, key)?;
+    entry
+        .set_password(value)
+        .map_err(|e| format!("keychain write failed: {e}"))
+}
+
+#[cfg(target_os = "macos")]
+fn delete_secret(service: &str, key: &str) -> Result<(), String> {
+    let entry = keyring_entry(service, key)?;
+    match entry.delete_credential() {
+        Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+        Err(err) => Err(format!("keychain delete failed: {err}")),
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn parse_secure_config(raw_config: &str) -> Result<SecureConfig, String> {
+    serde_json::from_str(raw_config).map_err(|e| format!("keychain config parse failed: {e}"))
+}
+
+#[cfg(target_os = "macos")]
+fn load_legacy_secure_config() -> Result<Option<SecureConfig>, String> {
+    if let Some(raw_config) = read_secret(LEGACY_KEYCHAIN_SERVICE, KEY_CONFIG)? {
+        return parse_secure_config(&raw_config).map(Some);
+    }
+
+    Ok(None)
+}
+
+#[tauri::command]
+fn load_secure_config() -> Result<Option<SecureConfig>, String> {
+    #[cfg(target_os = "macos")]
+    {
+        if let Some(raw_config) = read_secret(KEYCHAIN_SERVICE, KEY_CONFIG)? {
+            return parse_secure_config(&raw_config).map(Some);
+        }
+
+        if let Some(config) = load_legacy_secure_config()? {
+            let raw_config = serde_json::to_string(&config)
+                .map_err(|e| format!("keychain config serialize failed: {e}"))?;
+            write_secret(KEY_CONFIG, &raw_config)?;
+            return Ok(Some(config));
+        }
+
+        return Ok(None);
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        Ok(None)
+    }
+}
+
+#[tauri::command]
+fn save_secure_config(server_url: String, password: String) -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        let config = SecureConfig {
+            server_url,
+            password,
+        };
+        let raw_config = serde_json::to_string(&config)
+            .map_err(|e| format!("keychain config serialize failed: {e}"))?;
+        write_secret(KEY_CONFIG, &raw_config)?;
+        return Ok(());
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        let _ = (server_url, password);
+        Err("Secure keychain storage is only enabled on macOS builds.".to_string())
+    }
+}
+
+#[tauri::command]
+fn clear_secure_config() -> Result<(), String> {
+    #[cfg(target_os = "macos")]
+    {
+        delete_secret(KEYCHAIN_SERVICE, KEY_CONFIG)?;
+        delete_secret(LEGACY_KEYCHAIN_SERVICE, KEY_CONFIG)?;
+        return Ok(());
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        Ok(())
+    }
+}
+
+fn focus_main_window<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.show();
+        let _ = window.unminimize();
+        let _ = window.set_focus();
+    }
+}
+
+fn emit_settings_open<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
+    let _ = app.emit("app://open-settings", ());
+}
+
+fn setup_app_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
+    let app_submenu = SubmenuBuilder::new(app, "Messages")
+        .text(MENU_SHOW, "Show")
+        .text(MENU_SETTINGS, "Settings")
+        .separator()
+        .text(MENU_QUIT, "Quit")
+        .build()?;
+
+    let menu = MenuBuilder::new(app).item(&app_submenu).build()?;
+    app.set_menu(menu)?;
+    Ok(())
+}
+
+fn setup_tray<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
+    let tray_menu = MenuBuilder::new(app)
+        .text(TRAY_SHOW, "Show")
+        .text(TRAY_SETTINGS, "Settings")
+        .separator()
+        .text(TRAY_QUIT, "Quit")
+        .build()?;
+
+    let mut tray = TrayIconBuilder::with_id("main-tray")
+        .menu(&tray_menu)
+        .show_menu_on_left_click(false);
+
+    if let Some(icon) = app.default_window_icon().cloned() {
+        tray = tray.icon(icon);
+    }
+
+    tray.on_menu_event(|app, event| match event.id().as_ref() {
+        TRAY_SHOW => focus_main_window(app),
+        TRAY_SETTINGS => {
+            focus_main_window(app);
+            emit_settings_open(app);
+        }
+        TRAY_QUIT => app.exit(0),
+        _ => {}
+    })
+    .on_tray_icon_event(|tray, event| {
+        if let TrayIconEvent::Click {
+            button: MouseButton::Left,
+            button_state: MouseButtonState::Up,
+            ..
+        } = event
+        {
+            focus_main_window(&tray.app_handle());
+        }
+    })
+    .build(app)?;
+
+    Ok(())
+}
+
+#[cfg_attr(mobile, tauri::mobile_entry_point)]
+pub fn run() {
+    tauri::Builder::default()
+        .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_autostart::Builder::new().build())
+        .invoke_handler(tauri::generate_handler![
+            load_secure_config,
+            save_secure_config,
+            clear_secure_config
+        ])
+        .setup(|app| {
+            let app_handle = app.handle();
+            setup_app_menu(&app_handle)?;
+            setup_tray(&app_handle)?;
+
+            if cfg!(debug_assertions) {
+                app.handle().plugin(
+                    tauri_plugin_log::Builder::default()
+                        .level(log::LevelFilter::Info)
+                        .build(),
+                )?;
+            }
+            Ok(())
+        })
+        .on_menu_event(|app, event| match event.id().as_ref() {
+            MENU_SHOW => focus_main_window(app),
+            MENU_SETTINGS => {
+                focus_main_window(app);
+                emit_settings_open(app);
+            }
+            MENU_QUIT => app.exit(0),
+            _ => {}
+        })
+        .run(tauri::generate_context!())
+        .expect("error while running tauri application");
+}

@@ -1,0 +1,116 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 211 100% 50%;
+    --radius: 0.75rem;
+    --app-font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .dark {
+    --background: 60 4% 9%;
+    --foreground: 42 21% 88%;
+    --card: 60 4% 9%;
+    --card-foreground: 42 21% 88%;
+    --popover: 60 4% 9%;
+    --popover-foreground: 42 21% 88%;
+    --primary: 43 12% 62%;
+    --primary-foreground: 60 4% 9%;
+    --secondary: 48 7% 14%;
+    --secondary-foreground: 42 21% 88%;
+    --muted: 48 7% 14%;
+    --muted-foreground: 40 7% 51%;
+    --accent: 48 7% 14%;
+    --accent-foreground: 42 21% 88%;
+    --destructive: 6 48% 45%;
+    --destructive-foreground: 42 21% 88%;
+    --border: 45 3% 16%;
+    --input: 45 5% 20%;
+    --ring: 43 12% 62%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--app-font-family);
+  }
+
+  .scrollbar-autohide {
+    scrollbar-color: transparent transparent;
+    scrollbar-width: thin;
+  }
+
+  .scrollbar-autohide:hover,
+  .scrollbar-autohide:focus,
+  .scrollbar-autohide:focus-within {
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+
+  .scrollbar-autohide::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-autohide::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 999px;
+  }
+
+  .scrollbar-autohide:hover::-webkit-scrollbar-thumb,
+  .scrollbar-autohide:focus::-webkit-scrollbar-thumb,
+  .scrollbar-autohide:focus-within::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--border));
+  }
+
+  .superlight-ui {
+    --primary: var(--foreground);
+    --primary-foreground: var(--background);
+    --secondary: var(--background);
+    --secondary-foreground: var(--foreground);
+    --muted: var(--background);
+    --muted-foreground: var(--foreground);
+    --accent: var(--background);
+    --accent-foreground: var(--foreground);
+    --ring: var(--border);
+    --radius: 0;
+  }
+
+  .superlight-ui *,
+  .superlight-ui *::before,
+  .superlight-ui *::after {
+    animation: none !important;
+    transition: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .superlight-ui img,
+  .superlight-ui video {
+    display: none !important;
+  }
+}
