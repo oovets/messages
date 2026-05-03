@@ -127,12 +127,12 @@ com.oovets.messages
 
 ### Important: Unsigned macOS Builds
 
-Release builds are currently unsigned. If macOS shows `"Messages.app" is damaged
-and can't be opened`, move the app to `/Applications` and remove the download
-quarantine flag:
+Release builds are currently unsigned. If macOS shows `"Messages Desktop.app" is
+damaged and can't be opened`, move the app to `/Applications` and remove the
+download quarantine flag:
 
 ```bash
-xattr -dr com.apple.quarantine /Applications/Messages.app
+xattr -dr com.apple.quarantine "/Applications/Messages Desktop.app"
 ```
 
 ## Scripts
