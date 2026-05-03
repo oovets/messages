@@ -170,9 +170,6 @@ export function ChatList() {
                     : "Disconnected"
                 }
               >
-                {wsConnected && (
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
-                )}
                 <span
                   className={cn(
                     "relative inline-flex h-2 w-2 rounded-full",
