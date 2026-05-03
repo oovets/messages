@@ -5,6 +5,8 @@
 [![Tauri 2](https://img.shields.io/badge/Tauri-2-24C8D8)](https://tauri.app/)
 [![React + TypeScript](https://img.shields.io/badge/React-TypeScript-3178C6)](https://react.dev/)
 
+![Layout mockup](docs/assets/messages-mockup.svg)
+
 Messages is a native macOS desktop app for BlueBubbles servers. It is a real
 Tauri 2 application that installs into `/Applications`, lives in the menu bar,
 launches at login, and feels at home on macOS — not a webpage in a wrapper.
