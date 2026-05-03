@@ -24,6 +24,12 @@ macOS releases are built by GitHub Actions from `v*` tags. The workflow builds:
 - Apple Silicon: `aarch64-apple-darwin` on `macos-latest`
 - Intel: `x86_64-apple-darwin` on `macos-13`
 
+Download release builds:
+
+- [Latest release](https://github.com/oovets/messages/releases/latest)
+- [Apple Silicon DMG](https://github.com/oovets/messages/releases/download/v0.1.3/Messages_0.1.3_aarch64.dmg)
+- [Intel DMG](https://github.com/oovets/messages/releases/download/v0.1.3/Messages_0.1.3_x64.dmg)
+
 Release builds are currently unsigned unless Apple signing and notarization
 secrets are added to the repository.
 
