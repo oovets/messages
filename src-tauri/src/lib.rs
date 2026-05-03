@@ -4,8 +4,11 @@ use serde::{Deserialize, Serialize};
 use tauri::{menu::MenuBuilder, menu::PredefinedMenuItem, menu::SubmenuBuilder, Emitter, Manager};
 use tauri::{tray::MouseButton, tray::MouseButtonState, tray::TrayIconBuilder, tray::TrayIconEvent};
 
+#[cfg(target_os = "macos")]
 const KEYCHAIN_SERVICE: &str = "com.oovets.messages";
+#[cfg(target_os = "macos")]
 const LEGACY_KEYCHAIN_SERVICE: &str = "com.oovets.imessagereact";
+#[cfg(target_os = "macos")]
 const KEY_CONFIG: &str = "secure-config";
 
 const MENU_SHOW: &str = "menu_show";
