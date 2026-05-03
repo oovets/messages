@@ -1,7 +1,7 @@
 #[cfg(target_os = "macos")]
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
-use tauri::{menu::MenuBuilder, menu::SubmenuBuilder, Emitter, Manager};
+use tauri::{menu::MenuBuilder, menu::PredefinedMenuItem, menu::SubmenuBuilder, Emitter, Manager};
 use tauri::{tray::MouseButton, tray::MouseButtonState, tray::TrayIconBuilder, tray::TrayIconEvent};
 
 const KEYCHAIN_SERVICE: &str = "com.oovets.messages";
@@ -10,7 +10,6 @@ const KEY_CONFIG: &str = "secure-config";
 
 const MENU_SHOW: &str = "menu_show";
 const MENU_SETTINGS: &str = "menu_settings";
-const MENU_QUIT: &str = "menu_quit";
 
 const TRAY_SHOW: &str = "tray_show";
 const TRAY_SETTINGS: &str = "tray_settings";
@@ -142,14 +141,38 @@ fn emit_settings_open<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
 }
 
 fn setup_app_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
-    let app_submenu = SubmenuBuilder::new(app, "Messages")
+    let app_submenu = SubmenuBuilder::new(app, "Messages Desktop")
         .text(MENU_SHOW, "Show")
         .text(MENU_SETTINGS, "Settings")
         .separator()
-        .text(MENU_QUIT, "Quit")
+        .item(&PredefinedMenuItem::hide(app, Some("Hide Messages Desktop"))?)
+        .item(&PredefinedMenuItem::hide_others(app, None)?)
+        .item(&PredefinedMenuItem::show_all(app, None)?)
+        .separator()
+        .item(&PredefinedMenuItem::quit(app, Some("Quit Messages Desktop"))?)
         .build()?;
 
-    let menu = MenuBuilder::new(app).item(&app_submenu).build()?;
+    let edit_submenu = SubmenuBuilder::new(app, "Edit")
+        .item(&PredefinedMenuItem::undo(app, None)?)
+        .item(&PredefinedMenuItem::redo(app, None)?)
+        .separator()
+        .item(&PredefinedMenuItem::cut(app, None)?)
+        .item(&PredefinedMenuItem::copy(app, None)?)
+        .item(&PredefinedMenuItem::paste(app, None)?)
+        .item(&PredefinedMenuItem::select_all(app, None)?)
+        .build()?;
+
+    let window_submenu = SubmenuBuilder::new(app, "Window")
+        .item(&PredefinedMenuItem::minimize(app, None)?)
+        .item(&PredefinedMenuItem::close_window(app, None)?)
+        .item(&PredefinedMenuItem::fullscreen(app, None)?)
+        .build()?;
+
+    let menu = MenuBuilder::new(app)
+        .item(&app_submenu)
+        .item(&edit_submenu)
+        .item(&window_submenu)
+        .build()?;
     app.set_menu(menu)?;
     Ok(())
 }
@@ -226,7 +249,6 @@ pub fn run() {
                 focus_main_window(app);
                 emit_settings_open(app);
             }
-            MENU_QUIT => app.exit(0),
             _ => {}
         })
         .run(tauri::generate_context!())
