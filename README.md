@@ -15,6 +15,12 @@ The app focuses on a lightweight native-feeling messaging experience:
 - Launch-at-login, tray menu, native menu, and `messages://` deep links.
 - App-wide appearance controls, theme color editing, and `Cmd +`, `Cmd -`, `Cmd 0` font scaling.
 
+## Screenshots
+
+![Messages dark mode chat interface](docs/assets/messages-preview-dark-anonymized.png)
+
+![Messages light mode chat interface](docs/assets/messages-preview-light-anonymized.png)
+
 ## Current Status
 
 The current app version is `0.1.3`.
