@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { MessageBubble } from "@/components/MessageBubble";
 import { TypingIndicator } from "@/components/TypingIndicator";
@@ -110,6 +110,9 @@ export function MessageList({ chatGUID }: MessageListProps) {
   const removeMessage = useAppStore((s) => s.removeMessage);
   const serverUrl = useAppStore((s) => s.serverUrl);
   const password = useAppStore((s) => s.password);
+  const visible = messages.filter((m) => reactionTypeNum(m.associatedMessageType) < 2000);
+  const latestVisible = visible[visible.length - 1];
+  const latestVisibleKey = latestVisible ? `${latestVisible.guid}:${latestVisible.dateCreated}` : "";
 
   function handleReply(m: Message) {
     setReplyTarget(chatGUID, m);
@@ -147,6 +150,7 @@ export function MessageList({ chatGUID }: MessageListProps) {
   const wasAtBottomRef = useRef(true);
   const lastChatRef = useRef<string>(chatGUID);
   const lastCountRef = useRef(0);
+  const lastLatestVisibleKeyRef = useRef("");
   const readyRef = useRef(false);
 
   const [showJump, setShowJump] = useState(false);
@@ -190,9 +194,10 @@ export function MessageList({ chatGUID }: MessageListProps) {
     setUnseenCount(0);
     lastChatRef.current = chatGUID;
     lastCountRef.current = 0;
+    lastLatestVisibleKeyRef.current = "";
   }, [chatGUID]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = scrollRef.current;
     const content = contentRef.current;
     if (!el || !content) return;
@@ -205,12 +210,15 @@ export function MessageList({ chatGUID }: MessageListProps) {
     return () => ro.disconnect();
   }, [chatGUID]);
 
-  useEffect(() => {
-    const newMessages = messages.length > lastCountRef.current;
-    const firstLoad = !readyRef.current && messages.length > 0 && !loadingMessages;
+  useLayoutEffect(() => {
+    const visibleCount = visible.length;
+    const latestChanged =
+      latestVisibleKey !== "" && latestVisibleKey !== lastLatestVisibleKeyRef.current;
+    const firstLoad = !readyRef.current && visibleCount > 0 && !loadingMessages;
 
     if (firstLoad) {
-      lastCountRef.current = messages.length;
+      lastCountRef.current = visibleCount;
+      lastLatestVisibleKeyRef.current = latestVisibleKey;
       requestAnimationFrame(() => {
         scrollToBottom("auto");
         requestAnimationFrame(() => {
@@ -222,18 +230,18 @@ export function MessageList({ chatGUID }: MessageListProps) {
       return;
     }
 
-    if (newMessages) {
-      const added = messages.length - lastCountRef.current;
-      lastCountRef.current = messages.length;
-      const lastMsg = messages[messages.length - 1];
-      if (lastMsg?.isFromMe || wasAtBottomRef.current) {
+    if (readyRef.current && latestChanged) {
+      const added = Math.max(1, visibleCount - lastCountRef.current);
+      lastCountRef.current = visibleCount;
+      lastLatestVisibleKeyRef.current = latestVisibleKey;
+      if (latestVisible?.isFromMe || wasAtBottomRef.current) {
         requestAnimationFrame(() => scrollToBottom("smooth"));
       } else {
         setUnseenCount((c) => c + added);
         setShowJump(true);
       }
     }
-  }, [messages, loadingMessages]);
+  }, [visible.length, latestVisibleKey, latestVisible?.isFromMe, loadingMessages]);
 
   function jumpToBottom() {
     scrollToBottom("smooth");
@@ -258,8 +266,6 @@ export function MessageList({ chatGUID }: MessageListProps) {
   }
 
   const reactionMap = buildReactionMap(messages);
-
-  const visible = messages.filter((m) => reactionTypeNum(m.associatedMessageType) < 2000);
 
   return (
     <div className="flex-1 relative min-h-0">

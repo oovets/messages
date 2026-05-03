@@ -34,6 +34,7 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
   const { serverUrl, password, superlightMode } = useAppStore();
   const replyTarget = useAppStore((s) => s.replyTarget[chatGUID] ?? null);
   const setReplyTarget = useAppStore((s) => s.setReplyTarget);
+  const setConnectionNotice = useAppStore((s) => s.setConnectionNotice);
   const upsertMessage = useAppStore((s) => s.upsertMessage);
   const replaceMessage = useAppStore((s) => s.replaceMessage);
   const updateChatPreview = useAppStore((s) => s.updateChatPreview);
@@ -63,7 +64,9 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
         const client = getClient(serverUrl, password);
         await client.sendMessage(chatGUID, trimmed, replyGuid, optimistic.tempGuid);
         replaceMessage(chatGUID, optimistic.guid, { ...optimistic, pending: false });
-      } catch {
+      } catch (err) {
+        const detail = err instanceof Error ? err.message : String(err);
+        setConnectionNotice(`Unable to send message: ${detail}`);
         replaceMessage(chatGUID, optimistic.guid, {
           ...optimistic,
           pending: false,

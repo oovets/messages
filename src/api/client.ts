@@ -238,7 +238,7 @@ export class BlueBubblesClient {
     const payload: Record<string, unknown> = {
       chatGuid: chatGUID,
       message: text,
-      method: replyToGUID ? "private-api" : "apple-script",
+      method: "private-api",
       tempGuid: tempGuid ?? crypto.randomUUID(),
     };
     if (replyToGUID) {
@@ -250,7 +250,15 @@ export class BlueBubblesClient {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error(`sendMessage failed: ${res.status}`);
+    if (!res.ok) {
+      let detail = "";
+      try {
+        detail = await res.text();
+      } catch {}
+      throw new Error(
+        `sendMessage failed: HTTP ${res.status}${detail ? ` - ${detail.slice(0, 160)}` : ""}`
+      );
+    }
   }
 
   async sendReaction(
