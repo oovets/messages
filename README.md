@@ -5,24 +5,28 @@
 [![Tauri 2](https://img.shields.io/badge/Tauri-2-24C8D8)](https://tauri.app/)
 [![React + TypeScript](https://img.shields.io/badge/React-TypeScript-3178C6)](https://react.dev/)
 
-Messages is a native macOS iMessage desktop client for BlueBubbles servers.
-It brings a clean, multi-pane messaging experience to macOS with secure
-Keychain-backed settings, rich link previews, attachments, desktop
-notifications, and a Tauri 2 app shell built with React, TypeScript, Vite,
-Tailwind CSS, and Zustand.
+Messages is a native macOS desktop app for BlueBubbles servers. It is a real
+Tauri 2 application that installs into `/Applications`, lives in the menu bar,
+launches at login, and feels at home on macOS — not a webpage in a wrapper.
 
-The web UI can run in a browser during development, while the intended product
-surface is the macOS desktop app.
+Built with Tauri 2, Rust, React, TypeScript, Vite, Tailwind CSS, and Zustand,
+the app delivers a clean, multi-pane iMessage experience with macOS Keychain
+credential storage, native notifications, deep links, and locally-fetched rich
+link previews.
 
-The app focuses on a lightweight native-feeling messaging experience:
+Desktop-first features:
 
-- Chat list, multi-pane conversations, message history, sending, replies, and tapbacks.
-- Image, video, and file attachments, including full-size image preview dialogs.
-- Rich link previews fetched locally in the desktop app.
-- Desktop notifications for incoming messages.
+- Real macOS app bundle with native menu, tray icon, dock presence, and `Cmd+Q`.
 - macOS Keychain-backed credential storage in release builds.
-- Launch-at-login, tray menu, native menu, and `messages://` deep links.
-- App-wide appearance controls, theme color editing, and `Cmd +`, `Cmd -`, `Cmd 0` font scaling.
+- Native desktop notifications for incoming messages.
+- Launch-at-login and `messages://` deep links to jump straight to a chat.
+- Link previews fetched locally through the Tauri HTTP plugin (no CORS hacks).
+- App-wide font scaling with `Cmd +`, `Cmd -`, `Cmd 0`, plus theme color editing.
+- Multi-pane conversations, replies, tapbacks, and image/video/file attachments
+  with full-size preview dialogs.
+
+A browser-served web build is available for development and contributors, but
+the shipping product is the macOS desktop app.
 
 ## Download
 
@@ -52,59 +56,44 @@ macOS releases are built by GitHub Actions from `v*` tags. The workflow builds:
 
 ## Requirements
 
-For frontend development:
+To use the app:
 
-- Node.js 24
-- npm
+- macOS (Apple Silicon or Intel)
+- A reachable BlueBubbles server
+- The BlueBubbles server URL and password/API key
 
-For desktop development:
+To build the desktop app from source:
 
 - Rust stable
 - Tauri 2 prerequisites for macOS
 - Xcode command line tools
+- Node.js 24 and npm
 
-For app usage:
-
-- A reachable BlueBubbles server
-- The BlueBubbles server URL
-- The BlueBubbles server password/API key
+The web build (used during development) additionally only needs Node.js 24 and npm.
 
 ## Quick Start
 
-Install dependencies:
+Most users should grab a prebuilt DMG from the [Download](#download) section
+above. To build the macOS desktop app yourself:
 
 ```bash
 npm install --legacy-peer-deps
-```
-
-Run the web app only:
-
-```bash
-npm run dev
-```
-
-Run the macOS desktop app in development:
-
-```bash
-npm run tauri:dev
-```
-
-Build the production frontend:
-
-```bash
-npm run build
-```
-
-Build local macOS desktop bundles:
-
-```bash
-npm run tauri:build
+npm run tauri:dev      # run the desktop app in development
+npm run tauri:build    # produce a local .app and .dmg
 ```
 
 Generated local bundles are written under:
 
 ```text
 src-tauri/target/release/bundle/
+```
+
+For frontend-only contributors, the web build can be served in a browser
+(useful for UI work without rebuilding the Rust shell):
+
+```bash
+npm run dev            # Vite dev server, browser only
+npm run build          # type-check and build the frontend
 ```
 
 ## First Run
