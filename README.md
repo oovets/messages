@@ -58,6 +58,68 @@ To use the app:
 - A reachable BlueBubbles server
 - The BlueBubbles server URL and password/API key
 
+<details>
+<summary><strong>Installing a BlueBubbles server</strong></summary>
+
+The BlueBubbles server is a macOS app that bridges iMessage to an HTTP/WebSocket
+API. It must run on a Mac that is signed into iCloud and has Messages working.
+
+**Host requirements**
+
+- A Mac (mini, MacBook, iMac) running macOS 11 Big Sur or newer
+- Signed into iCloud, with iMessage enabled and at least one conversation visible
+- Always-on power, network, and "Prevent automatic sleeping" enabled
+- Full Disk Access granted to the BlueBubbles server app (so it can read the
+  Messages SQLite database)
+- Accessibility and Automation permissions granted (so it can send messages)
+
+**Install steps**
+
+1. On the host Mac, download the latest server build from
+   [bluebubbles.app/server](https://bluebubbles.app/server) (or the
+   [GitHub releases](https://github.com/BlueBubblesApp/bluebubbles-server/releases)).
+2. Move `BlueBubbles.app` into `/Applications` and launch it.
+3. Approve the macOS permission prompts:
+   - System Settings → Privacy & Security → **Full Disk Access** → enable BlueBubbles
+   - **Accessibility** → enable BlueBubbles
+   - **Automation** → allow BlueBubbles to control Messages and System Events
+4. In the server UI, set a strong **server password** — this is the API
+   password the client will use.
+5. Choose a port (default `1234`) and start the server.
+6. Optional: enable "Launch on startup" and disable App Nap so the server
+   survives reboots and stays awake.
+
+**Exposing the server**
+
+For LAN-only use, the local URL (`http://<mac-ip>:1234`) is enough. For remote
+access, pick one of:
+
+- **Cloudflare Tunnel** (recommended): the server's built-in proxy can publish
+  a `*.trycloudflare.com` URL, or you can attach a named tunnel.
+- **ngrok**: also supported from the server UI under Connection settings.
+- **Manual port-forward + dynamic DNS**: forward the chosen port on your router
+  and point a hostname at your home IP. Use TLS in front of it.
+
+**Verify the server is up**
+
+```bash
+curl -k "https://your-server/api/v1/server/info?password=YOUR_PASSWORD"
+```
+
+A JSON payload with server metadata confirms the API is reachable. Use that
+same URL and password in the app's Settings dialog on first run.
+
+**Common pitfalls**
+
+- Messages app must have launched at least once and synced an iMessage chat.
+- iCloud "Messages in iCloud" should be on, otherwise old history is missing.
+- If macOS upgrades reset permissions, re-grant Full Disk Access and restart
+  the server.
+- Self-signed certificates work but the client must trust them — prefer a real
+  TLS cert via Cloudflare Tunnel for remote use.
+
+</details>
+
 To build the desktop app from source:
 
 - Rust stable
