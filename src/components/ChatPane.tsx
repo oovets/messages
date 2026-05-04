@@ -75,11 +75,8 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
 
   return (
     <div
-      onMouseDown={(e) => {
-        if (isActive) return;
-        const target = e.target as HTMLElement | null;
-        if (target?.closest('button, a, input, textarea, [role="button"]')) return;
-        setActivePane(paneId);
+      onMouseDown={() => {
+        if (!isActive) setActivePane(paneId);
       }}
       className={cn(
         "flex flex-col h-full min-h-0 bg-background relative",
