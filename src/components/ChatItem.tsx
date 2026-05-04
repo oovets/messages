@@ -63,13 +63,19 @@ export function ChatItem({ chat, isSelected, onClick, compact = false }: ChatIte
       onClick={onClick}
       aria-pressed={isSelected}
       className={cn(
-        "w-full flex items-center gap-3 px-4 py-2.5 text-left relative border-b active:bg-accent/80",
+        "w-full flex items-center gap-3 pl-5 pr-4 py-2.5 text-left relative border-b active:bg-accent/80",
         superlightMode ? "hover:bg-muted/30" : "transition-colors duration-75 hover:bg-accent/60",
         isSelected && (superlightMode ? "bg-muted/40" : "bg-accent")
       )}
     >
       {isSelected && (
         <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r-full bg-primary" />
+      )}
+      {chat.unreadCount > 0 && (
+        <span
+          className="absolute left-1.5 top-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-[#0b93f6]"
+          aria-label={`${chat.unreadCount} unread`}
+        />
       )}
       {!superlightMode && (
         <Avatar className="h-10 w-10 shrink-0">

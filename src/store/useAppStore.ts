@@ -568,18 +568,41 @@ export const useAppStore = create<AppState>()(
         const existing = get().messages[chatGUID] ?? [];
         const updated = mergeMessageList(existing, [message]);
         const newest = updated[updated.length - 1]?.dateCreated ?? 0;
-        set((s) => ({
-          messages: { ...s.messages, [chatGUID]: updated },
-          messageFetchedAt: {
-            ...s.messageFetchedAt,
-            [chatGUID]: Math.max(s.messageFetchedAt[chatGUID] ?? 0, newest),
-          },
-          chats: s.chats.map((c) =>
-            c.guid === chatGUID && message.text
-              ? { ...c, lastMessageText: message.text }
-              : c
-          ),
-        }));
+        set((s) => {
+          const idx = s.chats.findIndex((c) => c.guid === chatGUID);
+          let nextChats = s.chats;
+          if (idx !== -1) {
+            const chat = s.chats[idx];
+            const prevLatest = chat.lastMessage?.dateCreated ?? 0;
+            const isNewLatest = !!message.text && message.dateCreated > prevLatest;
+            const updatedChat = isNewLatest
+              ? {
+                  ...chat,
+                  lastMessageText: message.text,
+                  lastMessage: message,
+                }
+              : message.text
+              ? { ...chat, lastMessageText: message.text }
+              : chat;
+            if (isNewLatest && idx > 0) {
+              nextChats = [
+                updatedChat,
+                ...s.chats.slice(0, idx),
+                ...s.chats.slice(idx + 1),
+              ];
+            } else if (updatedChat !== chat) {
+              nextChats = s.chats.map((c) => (c.guid === chatGUID ? updatedChat : c));
+            }
+          }
+          return {
+            messages: { ...s.messages, [chatGUID]: updated },
+            messageFetchedAt: {
+              ...s.messageFetchedAt,
+              [chatGUID]: Math.max(s.messageFetchedAt[chatGUID] ?? 0, newest),
+            },
+            chats: nextChats,
+          };
+        });
       },
 
       removeMessage: (chatGUID, guid) =>
