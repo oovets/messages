@@ -152,6 +152,7 @@ export function MessageList({ chatGUID }: MessageListProps) {
   const lastCountRef = useRef(0);
   const lastLatestVisibleKeyRef = useRef("");
   const readyRef = useRef(false);
+  const lastScrollHeightRef = useRef(0);
 
   const [showJump, setShowJump] = useState(false);
   const [unseenCount, setUnseenCount] = useState(0);
@@ -172,7 +173,16 @@ export function MessageList({ chatGUID }: MessageListProps) {
     if (!el) return;
     function onScroll() {
       if (!readyRef.current) return;
-      const distanceFromBottom = el!.scrollHeight - el!.scrollTop - el!.clientHeight;
+      const sh = el!.scrollHeight;
+      const grew = sh > lastScrollHeightRef.current;
+      lastScrollHeightRef.current = sh;
+      const distanceFromBottom = sh - el!.scrollTop - el!.clientHeight;
+      // If content grew below us and we were pinned, re-pin instead of
+      // treating the new gap as the user scrolling up.
+      if (wasAtBottomRef.current && grew && distanceFromBottom > 0) {
+        el!.scrollTop = sh;
+        return;
+      }
       const atBottom = distanceFromBottom < 80;
       wasAtBottomRef.current = atBottom;
       if (atBottom) {
@@ -195,6 +205,7 @@ export function MessageList({ chatGUID }: MessageListProps) {
     lastChatRef.current = chatGUID;
     lastCountRef.current = 0;
     lastLatestVisibleKeyRef.current = "";
+    lastScrollHeightRef.current = 0;
   }, [chatGUID]);
 
   useLayoutEffect(() => {
@@ -214,7 +225,10 @@ export function MessageList({ chatGUID }: MessageListProps) {
     const visibleCount = visible.length;
     const latestChanged =
       latestVisibleKey !== "" && latestVisibleKey !== lastLatestVisibleKeyRef.current;
-    const firstLoad = !readyRef.current && visibleCount > 0 && !loadingMessages;
+    // Per-pane first paint: trigger as soon as we have content. Don't gate on
+    // the global loadingMessages flag — it can be true because *another* pane
+    // is fetching, which would wedge this pane's initial scroll-to-bottom.
+    const firstLoad = !readyRef.current && visibleCount > 0;
 
     if (firstLoad) {
       lastCountRef.current = visibleCount;
@@ -241,7 +255,7 @@ export function MessageList({ chatGUID }: MessageListProps) {
         setShowJump(true);
       }
     }
-  }, [visible.length, latestVisibleKey, latestVisible?.isFromMe, loadingMessages]);
+  }, [visible.length, latestVisibleKey, latestVisible?.isFromMe]);
 
   function jumpToBottom() {
     scrollToBottom("smooth");
