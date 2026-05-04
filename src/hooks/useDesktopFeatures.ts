@@ -1,4 +1,6 @@
 import { useEffect } from "react";
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrent, onOpenUrl } from "@tauri-apps/plugin-deep-link";
 import { isEnabled } from "@tauri-apps/plugin-autostart";
 import { loadSecureConfig } from "@/lib/secureConfig";
@@ -88,6 +90,37 @@ export function useDesktopFeatures() {
       if (unlisten) unlisten();
     };
   }, [selectChat]);
+
+  useEffect(() => {
+    if (!isTauriRuntime()) return;
+
+    let menubarVisible = true;
+    function setMenubar(visible: boolean) {
+      menubarVisible = visible;
+      invoke("set_menubar_visible", { visible }).catch(() => {});
+    }
+
+    let unlistenHide: (() => void) | null = null;
+    listen("app://hide-menubar", () => setMenubar(false))
+      .then((fn) => {
+        unlistenHide = fn;
+      })
+      .catch(() => {});
+
+    function onKeyDown(event: KeyboardEvent) {
+      const mod = event.metaKey || event.ctrlKey;
+      if (mod && event.shiftKey && (event.key === "M" || event.key === "m")) {
+        event.preventDefault();
+        setMenubar(!menubarVisible);
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      if (unlistenHide) unlistenHide();
+    };
+  }, []);
 
   useEffect(() => {
     function applyOnlineState(online: boolean) {

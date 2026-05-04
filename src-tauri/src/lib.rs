@@ -1,7 +1,10 @@
 #[cfg(target_os = "macos")]
 use keyring::Entry;
 use serde::{Deserialize, Serialize};
-use tauri::{menu::MenuBuilder, menu::PredefinedMenuItem, menu::SubmenuBuilder, Emitter, Manager};
+use tauri::{
+    menu::Menu, menu::MenuBuilder, menu::MenuItemBuilder, menu::PredefinedMenuItem,
+    menu::SubmenuBuilder, Emitter, Manager, Runtime,
+};
 use tauri::{tray::MouseButton, tray::MouseButtonState, tray::TrayIconBuilder, tray::TrayIconEvent};
 
 #[cfg(target_os = "macos")]
@@ -13,6 +16,7 @@ const KEY_CONFIG: &str = "secure-config";
 
 const MENU_SHOW: &str = "menu_show";
 const MENU_SETTINGS: &str = "menu_settings";
+const MENU_HIDE_MENUBAR: &str = "menu_hide_menubar";
 
 const TRAY_SHOW: &str = "tray_show";
 const TRAY_SETTINGS: &str = "tray_settings";
@@ -143,7 +147,7 @@ fn emit_settings_open<R: tauri::Runtime>(app: &tauri::AppHandle<R>) {
     let _ = app.emit("app://open-settings", ());
 }
 
-fn setup_app_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
+fn build_app_menu<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<Menu<R>> {
     let app_submenu = SubmenuBuilder::new(app, "Messages Desktop")
         .text(MENU_SHOW, "Show")
         .text(MENU_SETTINGS, "Settings")
@@ -165,18 +169,44 @@ fn setup_app_menu<R: tauri::Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result
         .item(&PredefinedMenuItem::select_all(app, None)?)
         .build()?;
 
+    let hide_menubar = MenuItemBuilder::with_id(MENU_HIDE_MENUBAR, "Hide Menu Bar")
+        .accelerator("CmdOrCtrl+Shift+M")
+        .build(app)?;
+
+    let view_submenu = SubmenuBuilder::new(app, "View")
+        .item(&hide_menubar)
+        .build()?;
+
     let window_submenu = SubmenuBuilder::new(app, "Window")
         .item(&PredefinedMenuItem::minimize(app, None)?)
         .item(&PredefinedMenuItem::close_window(app, None)?)
         .item(&PredefinedMenuItem::fullscreen(app, None)?)
         .build()?;
 
-    let menu = MenuBuilder::new(app)
+    MenuBuilder::new(app)
         .item(&app_submenu)
         .item(&edit_submenu)
+        .item(&view_submenu)
         .item(&window_submenu)
-        .build()?;
+        .build()
+}
+
+fn setup_app_menu<R: Runtime>(app: &tauri::AppHandle<R>) -> tauri::Result<()> {
+    let menu = build_app_menu(app)?;
     app.set_menu(menu)?;
+    Ok(())
+}
+
+#[tauri::command]
+fn set_menubar_visible<R: Runtime>(app: tauri::AppHandle<R>, visible: bool) -> Result<(), String> {
+    if visible {
+        let menu = build_app_menu(&app).map_err(|e| format!("build menu failed: {e}"))?;
+        app.set_menu(menu)
+            .map_err(|e| format!("set menu failed: {e}"))?;
+    } else {
+        app.remove_menu()
+            .map_err(|e| format!("remove menu failed: {e}"))?;
+    }
     Ok(())
 }
 
@@ -230,7 +260,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             load_secure_config,
             save_secure_config,
-            clear_secure_config
+            clear_secure_config,
+            set_menubar_visible
         ])
         .setup(|app| {
             let app_handle = app.handle();
@@ -251,6 +282,9 @@ pub fn run() {
             MENU_SETTINGS => {
                 focus_main_window(app);
                 emit_settings_open(app);
+            }
+            MENU_HIDE_MENUBAR => {
+                let _ = app.emit("app://hide-menubar", ());
             }
             _ => {}
         })
