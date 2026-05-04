@@ -196,7 +196,10 @@ export function MessageList({ chatGUID }: MessageListProps) {
     return () => el.removeEventListener("scroll", onScroll);
   }, [chatGUID]);
 
-  useEffect(() => {
+  // Must run before the firstLoad layout effect below, so readyRef is reset
+  // in the same render when chatGUID changes — otherwise switching to a chat
+  // with cached messages leaves the content stuck at opacity-0.
+  useLayoutEffect(() => {
     readyRef.current = false;
     setReady(false);
     wasAtBottomRef.current = true;
