@@ -36,8 +36,12 @@ export function PaneTree({ node, activePaneId, totalLeaves }: PaneTreeProps) {
   const aId = `panel_${a.id}`;
   const bId = `panel_${b.id}`;
   const stored = paneLayouts[node.id];
-  const aSize = stored?.[0] ?? 50;
-  const bSize = stored?.[1] ?? 100 - aSize;
+  const a0 = Number(stored?.[0]);
+  const b0 = Number(stored?.[1]);
+  const valid =
+    Number.isFinite(a0) && Number.isFinite(b0) && a0 > 0 && b0 > 0;
+  const aSize = valid ? a0 : 50;
+  const bSize = valid ? b0 : 50;
 
   return (
     <ResizablePanelGroup

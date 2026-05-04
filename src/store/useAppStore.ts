@@ -178,6 +178,27 @@ function splitLeaf(
   });
   return { tree: next, newLeafId };
 }
+function collectSplitIds(node: PaneNode, out: Set<string>): void {
+  if (node.type !== "split") return;
+  out.add(node.id);
+  collectSplitIds(node.children[0], out);
+  collectSplitIds(node.children[1], out);
+}
+
+function pruneLayouts(
+  layouts: Record<string, number[]>,
+  tree: PaneNode
+): Record<string, number[]> {
+  const ids = new Set<string>();
+  collectSplitIds(tree, ids);
+  const next: Record<string, number[]> = {};
+  for (const id of ids) {
+    const v = layouts[id];
+    if (v) next[id] = v;
+  }
+  return next;
+}
+
 function removeLeaf(tree: PaneNode, leafId: string): { tree: PaneNode; nextActiveId: string } {
   function helper(n: PaneNode): PaneNode | null {
     if (n.type === "leaf") return n.id === leafId ? null : n;
@@ -455,7 +476,10 @@ export const useAppStore = create<AppState>()(
       },
 
       setPaneChat: (paneId, guid) => {
-        const tree = setLeafChat(get().paneTree, paneId, guid);
+        const { paneTree } = get();
+        const leaf = findLeaf(paneTree, paneId);
+        if (!leaf || leaf.type !== "leaf") return;
+        const tree = setLeafChat(paneTree, paneId, guid);
         set({
           paneTree: tree,
           activePaneId: paneId,
@@ -464,12 +488,19 @@ export const useAppStore = create<AppState>()(
       },
 
       setActivePane: (paneId) => {
-        const { paneTree } = get();
+        const { paneTree, activePaneId } = get();
+        if (paneId === activePaneId) return;
+        const leaf = findLeaf(paneTree, paneId);
+        if (!leaf || leaf.type !== "leaf") return;
         set({ activePaneId: paneId, selectedChatGUID: deriveSelectedChat(paneTree, paneId) });
       },
 
       splitPane: (paneId, direction, chatGUID = null) => {
         const base = ensurePaneState(get().paneTree, get().activePaneId);
+        const target = findLeaf(base.tree, paneId);
+        if (!target || target.type !== "leaf") return;
+        const stats = paneTreeStats(base.tree);
+        if (stats.leaves >= MAX_PANE_LEAVES || stats.depth >= MAX_PANE_DEPTH) return;
         const { tree, newLeafId } = splitLeaf(base.tree, paneId, direction, chatGUID);
         set({
           paneTree: tree,
@@ -479,12 +510,17 @@ export const useAppStore = create<AppState>()(
       },
 
       closePane: (paneId) => {
-        const { paneTree } = get();
+        const { paneTree, activePaneId, paneLayouts } = get();
+        if (!findLeaf(paneTree, paneId)) return;
         const { tree, nextActiveId } = removeLeaf(paneTree, paneId);
+        const closedActive = paneId === activePaneId;
+        const activeStillExists = !closedActive && !!findLeaf(tree, activePaneId);
+        const newActive = activeStillExists ? activePaneId : nextActiveId;
         set({
           paneTree: tree,
-          activePaneId: nextActiveId,
-          selectedChatGUID: deriveSelectedChat(tree, nextActiveId),
+          activePaneId: newActive,
+          selectedChatGUID: deriveSelectedChat(tree, newActive),
+          paneLayouts: pruneLayouts(paneLayouts, tree),
         });
       },
 
@@ -493,7 +529,10 @@ export const useAppStore = create<AppState>()(
 
       repairPaneState: () => {
         const base = ensurePaneState(get().paneTree, get().activePaneId);
-        const cleanedLayouts = sanitizePaneLayouts(get().paneLayouts);
+        const cleanedLayouts = pruneLayouts(
+          sanitizePaneLayouts(get().paneLayouts),
+          base.tree
+        );
         set({
           paneTree: base.tree,
           activePaneId: base.activePaneId,

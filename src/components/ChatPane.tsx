@@ -17,32 +17,29 @@ interface ChatPaneProps {
 }
 
 export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack }: ChatPaneProps) {
-  const {
-    chats,
-    serverUrl,
-    password,
-    messages: allMessages,
-    messageFetchedAt,
-    setMessages,
-    mergeMessages,
-    setLoadingMessages,
-    setActivePane,
-    splitPane,
-    closePane,
-    setPaneChat,
-  } = useAppStore();
+  const selectedChat = useAppStore((s) =>
+    chatGUID ? s.chats.find((c) => c.guid === chatGUID) : undefined
+  );
+  const serverUrl = useAppStore((s) => s.serverUrl);
+  const password = useAppStore((s) => s.password);
+  const setMessages = useAppStore((s) => s.setMessages);
+  const mergeMessages = useAppStore((s) => s.mergeMessages);
+  const setLoadingMessages = useAppStore((s) => s.setLoadingMessages);
+  const setActivePane = useAppStore((s) => s.setActivePane);
+  const splitPane = useAppStore((s) => s.splitPane);
+  const closePane = useAppStore((s) => s.closePane);
+  const setPaneChat = useAppStore((s) => s.setPaneChat);
   const [fetchError, setFetchError] = useState<string | null>(null);
-
-  const selectedChat = chats.find((c) => c.guid === chatGUID);
 
   useEffect(() => {
     if (!chatGUID) return;
     let cancelled = false;
     setFetchError(null);
 
-    const cached = allMessages[chatGUID] ?? [];
+    const snapshot = useAppStore.getState();
+    const cached = snapshot.messages[chatGUID] ?? [];
     const hasCached = cached.length > 0;
-    const lastFetchedAt = messageFetchedAt[chatGUID] ?? 0;
+    const lastFetchedAt = snapshot.messageFetchedAt[chatGUID] ?? 0;
 
     if (!hasCached) setLoadingMessages(true);
 
@@ -78,7 +75,12 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
 
   return (
     <div
-      onMouseDown={() => !isActive && setActivePane(paneId)}
+      onMouseDown={(e) => {
+        if (isActive) return;
+        const target = e.target as HTMLElement | null;
+        if (target?.closest('button, a, input, textarea, [role="button"]')) return;
+        setActivePane(paneId);
+      }}
       className={cn(
         "flex flex-col h-full min-h-0 bg-background relative",
         isActive && "ring-1 ring-inset ring-primary/30"
@@ -116,7 +118,7 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
             variant="ghost"
             size="icon"
             className="h-7 w-7 hidden md:inline-flex text-muted-foreground"
-            onClick={() => splitPane(paneId, "horizontal", chatGUID)}
+            onClick={() => splitPane(paneId, "horizontal")}
             aria-label="Split right"
             title="Split right"
           >
@@ -126,7 +128,7 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
             variant="ghost"
             size="icon"
             className="h-7 w-7 hidden md:inline-flex text-muted-foreground"
-            onClick={() => splitPane(paneId, "vertical", chatGUID)}
+            onClick={() => splitPane(paneId, "vertical")}
             aria-label="Split down"
             title="Split down"
           >
