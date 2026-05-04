@@ -256,18 +256,22 @@ export function ChatList() {
         </div>
       )}
 
-      {!sidebarHidden && <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1">
         {!isConfigured ? (
-          <div className="p-6 text-center text-sm text-muted-foreground">
-            <p>Configure your server to get started.</p>
-            <p className="mt-1">Click the settings icon above.</p>
-          </div>
+          !sidebarHidden && (
+            <div className="p-6 text-center text-sm text-muted-foreground">
+              <p>Configure your server to get started.</p>
+              <p className="mt-1">Click the settings icon above.</p>
+            </div>
+          )
         ) : loadingChats && chats.length === 0 ? (
-          <ChatListSkeleton />
+          !sidebarHidden && <ChatListSkeleton />
         ) : filteredChats.length === 0 ? (
-          <div className="p-6 text-center text-sm text-muted-foreground">
-            {query ? `No chats match "${query}".` : "No chats found."}
-          </div>
+          !sidebarHidden && (
+            <div className="p-6 text-center text-sm text-muted-foreground">
+              {query ? `No chats match "${query}".` : "No chats found."}
+            </div>
+          )
         ) : (
           filteredChats.map((chat) => (
             <ChatItem
@@ -275,10 +279,11 @@ export function ChatList() {
               chat={chat}
               isSelected={chat.guid === selectedChatGUID}
               onClick={() => selectChat(chat.guid)}
+              compact={sidebarHidden}
             />
           ))
         )}
-      </ScrollArea>}
+      </ScrollArea>
     </div>
   );
 }

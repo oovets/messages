@@ -107,7 +107,7 @@ export default function App() {
           "flex flex-col min-h-0 shrink-0 transition-[width] md:border-r",
           selectedChatGUID ? "hidden w-0 md:flex" : "flex w-full",
           sidebarHidden
-            ? "md:w-10 md:overflow-hidden"
+            ? "md:w-16 md:overflow-hidden"
             : "md:w-80"
         )}
       >

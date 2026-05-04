@@ -14,9 +14,10 @@ interface ChatItemProps {
   chat: Chat;
   isSelected: boolean;
   onClick: () => void;
+  compact?: boolean;
 }
 
-export function ChatItem({ chat, isSelected, onClick }: ChatItemProps) {
+export function ChatItem({ chat, isSelected, onClick, compact = false }: ChatItemProps) {
   const superlightMode = useAppStore((s) => s.superlightMode);
   const isTyping = useAppStore(
     (s) => (s.typingChats[chat.guid] ?? 0) > Date.now()
@@ -27,6 +28,35 @@ export function ChatItem({ chat, isSelected, onClick }: ChatItemProps) {
     ? formatMessageTime(chat.lastMessage.dateCreated)
     : "";
   const preview = decodeEscapedUnicode(chat.lastMessageText ?? chat.lastMessage?.text ?? "");
+
+  if (compact) {
+    return (
+      <button
+        onClick={onClick}
+        aria-pressed={isSelected}
+        title={name}
+        className={cn(
+          "w-full flex items-center justify-center px-2 py-2 relative active:bg-accent/80",
+          superlightMode ? "hover:bg-muted/30" : "transition-colors duration-75 hover:bg-accent/60",
+          isSelected && (superlightMode ? "bg-muted/40" : "bg-accent")
+        )}
+      >
+        {isSelected && (
+          <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-r-full bg-primary" />
+        )}
+        <Avatar className="h-10 w-10 shrink-0">
+          <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
+        {chat.unreadCount > 0 && (
+          <span className="absolute top-1 right-1 h-4 min-w-4 px-1 text-[10px] rounded-full bg-primary text-primary-foreground font-semibold flex items-center justify-center">
+            {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
+          </span>
+        )}
+      </button>
+    );
+  }
 
   return (
     <button
