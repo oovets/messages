@@ -95,9 +95,9 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
   }
 
   return (
-    <div className={cn("border-t px-2 md:px-4 py-2.5", superlightMode ? "bg-background" : "bg-background/80 backdrop-blur-xl")}>
+    <div className={cn("px-2 md:px-4 py-2.5", superlightMode ? "bg-background" : "border-t bg-background/80 backdrop-blur-xl")}>
       {replyTarget && (
-        <div className={cn("mb-2 flex items-start gap-2 border px-3 py-2", superlightMode ? "" : "rounded-lg bg-muted/40 animate-in fade-in slide-in-from-bottom-1 duration-150")}>
+        <div className={cn("mb-2 flex items-start gap-2 px-3 py-2", superlightMode ? "" : "border rounded-lg bg-muted/40 animate-in fade-in slide-in-from-bottom-1 duration-150")}>
           {!superlightMode && <Reply className="h-3.5 w-3.5 mt-0.5 text-primary shrink-0" />}
           <div className="flex-1 min-w-0">
             <p className="text-[11px] text-muted-foreground">
@@ -122,7 +122,7 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
           type="button"
           className={cn(
             "h-9 text-muted-foreground flex items-center justify-center shrink-0",
-            superlightMode ? "px-2 w-auto border border-input text-xs" : "w-9 rounded-full hover:bg-muted transition-colors"
+            superlightMode ? "px-2 w-auto text-xs" : "w-9 rounded-full hover:bg-muted transition-colors"
           )}
           aria-label="Attach file"
           title="Attachments coming soon"
@@ -140,10 +140,10 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
             placeholder={replyTarget ? "Reply…" : "iMessage"}
             rows={1}
             className={cn(
-              "scrollbar-autohide w-full resize-none border border-input pl-4 py-2.5 text-sm",
+              "scrollbar-autohide w-full resize-none pl-4 py-2.5 text-sm",
               superlightMode
                 ? "bg-background pr-16 placeholder:text-muted-foreground focus:outline-none min-h-[40px] max-h-[140px] overflow-y-auto"
-                : "rounded-2xl bg-muted/40 pr-11 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[140px] overflow-y-auto transition-shadow"
+                : "border border-input rounded-2xl bg-muted/40 pr-11 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[140px] overflow-y-auto transition-shadow"
             )}
           />
           <button
@@ -153,7 +153,7 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
             className={cn(
               "absolute right-1.5 bottom-1.5 flex items-center justify-center shrink-0",
               superlightMode
-                ? "h-7 px-2 border border-input text-xs"
+                ? "h-7 px-2 text-xs"
                 : "h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 ease-out active:scale-90",
               superlightMode
                 ? hasText

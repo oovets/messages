@@ -29,6 +29,7 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
   const splitPane = useAppStore((s) => s.splitPane);
   const closePane = useAppStore((s) => s.closePane);
   const setPaneChat = useAppStore((s) => s.setPaneChat);
+  const superlightMode = useAppStore((s) => s.superlightMode);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -80,10 +81,10 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
       }}
       className={cn(
         "flex flex-col h-full min-h-0 bg-background relative",
-        isActive && "ring-1 ring-inset ring-primary/30"
+        isActive && !superlightMode && "ring-1 ring-inset ring-primary/30"
       )}
     >
-      <div className="flex items-center gap-1 px-2 md:px-3 py-2 border-b bg-background/80 backdrop-blur-xl shrink-0">
+      <div className={cn("flex items-center gap-1 px-2 md:px-3 py-2 shrink-0", superlightMode ? "bg-background" : "border-b bg-background/80 backdrop-blur-xl")}>
         {showMobileBack && (
           <Button
             variant="ghost"

@@ -127,12 +127,12 @@ export function ChatList() {
   }, [filteredChats, selectedChatGUID, selectChat]);
 
   return (
-    <div className={cn("flex flex-col h-full border-r", superlightMode ? "bg-background" : "bg-background/95 backdrop-blur-xl")}>
+    <div className={cn("flex flex-col h-full", superlightMode ? "bg-background" : "border-r bg-background/95 backdrop-blur-xl")}>
       {/* Header */}
       <div
         className={cn(
-          "flex items-center px-3 py-3 border-b sticky top-0 z-10",
-          superlightMode ? "justify-between bg-background" : "justify-between bg-background/80 backdrop-blur-xl",
+          "flex items-center px-3 py-3 sticky top-0 z-10",
+          superlightMode ? "justify-between bg-background" : "justify-between border-b bg-background/80 backdrop-blur-xl",
           sidebarHidden && "md:justify-center md:px-0"
         )}
       >
@@ -213,7 +213,7 @@ export function ChatList() {
       )}
 
       {!sidebarHidden && isConfigured && (
-        <div className="px-3 pt-2 pb-2 border-b">
+        <div className={cn("px-3 pt-2 pb-2", !superlightMode && "border-b")}>
           <div className="relative">
             {!superlightMode && (
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
@@ -226,7 +226,7 @@ export function ChatList() {
               className={cn(
                 "w-full h-8 text-sm placeholder:text-muted-foreground",
                 superlightMode
-                  ? "pl-2 pr-2 border border-input bg-background focus:outline-none"
+                  ? "pl-1 pr-1 bg-transparent focus:outline-none"
                   : "pl-8 pr-8 rounded-lg bg-muted/60 border-0 focus:outline-none focus:ring-2 focus:ring-ring"
               )}
             />

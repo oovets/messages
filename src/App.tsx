@@ -104,7 +104,8 @@ export default function App() {
     <div className="flex h-screen overflow-hidden bg-background">
       <aside
         className={cn(
-          "flex flex-col min-h-0 shrink-0 transition-[width] md:border-r",
+          "flex flex-col min-h-0 shrink-0 transition-[width]",
+          !superlightMode && "md:border-r",
           selectedChatGUID ? "hidden w-0 md:flex" : "flex w-full",
           sidebarHidden
             ? "md:w-16 md:overflow-hidden"

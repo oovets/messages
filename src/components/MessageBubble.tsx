@@ -179,15 +179,24 @@ export function MessageBubble({
         )}
       >
         {showSender && senderName && (
-          <span className="text-[11px] text-muted-foreground mb-1 px-3">{senderName}</span>
+          <span
+            className={cn(
+              "mb-1 px-3",
+              superlightMode
+                ? "text-xs font-semibold text-foreground"
+                : "text-[11px] text-muted-foreground"
+            )}
+          >
+            {senderName}
+          </span>
         )}
 
-        <div className={cn("relative group", superlightMode ? "max-w-[95%] w-full border-b pb-1.5" : "max-w-[78%]")}>
+        <div className={cn("relative group", superlightMode ? "max-w-[95%] w-full" : "max-w-[78%]")}>
           <div
             className={cn(
               "px-3.5 py-2 text-sm select-text",
               superlightMode
-                ? "px-0 py-0 bg-transparent text-foreground"
+                ? cn("px-0 py-0 bg-transparent", isMe ? "text-right text-muted-foreground" : "text-foreground")
                 : cn(
                     "shadow-sm transition-all duration-200",
                     cornerClass,
