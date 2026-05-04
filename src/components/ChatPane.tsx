@@ -75,18 +75,24 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
 
   const empty = !chatGUID || !selectedChat;
 
+  useEffect(() => {
+    if (!isActive || empty) return;
+    const id = requestAnimationFrame(() => {
+      const t = paneRef.current?.querySelector("textarea");
+      t?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [isActive, empty, chatGUID]);
+
   return (
     <div
       ref={paneRef}
       onMouseDown={() => {
         if (!isActive) setActivePane(paneId);
-      }}
-      onClick={(e) => {
-        const target = e.target as HTMLElement | null;
-        if (!target) return;
-        if (target.closest('button, a, input, textarea, img, video, [role="button"]')) return;
-        if (window.getSelection()?.toString()) return;
-        paneRef.current?.querySelector("textarea")?.focus();
+        const textarea = paneRef.current?.querySelector("textarea");
+        if (textarea && document.activeElement !== textarea) {
+          textarea.focus({ preventScroll: true });
+        }
       }}
       className={cn(
         "flex flex-col h-full min-h-0 bg-background relative",

@@ -117,7 +117,7 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
           </button>
         </div>
       )}
-      <div className="flex items-end gap-2">
+      <div className={cn("flex gap-2", superlightMode ? "items-center" : "items-end")}>
         <button
           type="button"
           className={cn(
@@ -130,20 +130,26 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
           <Paperclip className="h-4 w-4" />
         </button>
 
-        <div className="flex-1 relative">
+        <div
+          className={cn(
+            "flex-1 relative",
+            superlightMode && "min-h-9 flex items-center cursor-text"
+          )}
+          onClick={() => textareaRef.current?.focus()}
+        >
           <textarea
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
             onInput={handleInput}
-            placeholder={replyTarget ? "Reply…" : "iMessage"}
+            placeholder={replyTarget ? "Reply…" : ""}
             rows={1}
             className={cn(
-              "scrollbar-autohide w-full resize-none pl-4 py-2.5 text-sm",
+              "scrollbar-autohide w-full resize-none text-sm caret-foreground",
               superlightMode
-                ? "bg-background pr-11 placeholder:text-muted-foreground focus:outline-none min-h-[40px] max-h-[140px] overflow-y-auto"
-                : "border border-input rounded-2xl bg-muted/40 pr-11 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[140px] overflow-y-auto transition-shadow"
+                ? "block bg-background p-0 m-0 leading-tight placeholder:text-muted-foreground focus:outline-none min-h-0 max-h-[140px] overflow-y-auto"
+                : "border border-input rounded-2xl bg-muted/40 pl-4 py-2.5 pr-11 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[140px] overflow-y-auto transition-shadow"
             )}
           />
           <button
@@ -151,10 +157,10 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
             disabled={!hasText}
             aria-label="Send message"
             className={cn(
-              "absolute right-1.5 bottom-1.5 h-7 w-7 flex items-center justify-center shrink-0",
+              "absolute right-1.5 h-7 w-7 flex items-center justify-center shrink-0",
               superlightMode
-                ? "text-foreground"
-                : "rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 ease-out active:scale-90",
+                ? "top-1/2 -translate-y-1/2 text-foreground"
+                : "bottom-1.5 rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 ease-out active:scale-90",
               superlightMode
                 ? hasText
                   ? "opacity-100"
