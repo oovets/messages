@@ -41,12 +41,6 @@ Download the latest macOS DMG from GitHub Releases:
 Release builds are currently unsigned unless Apple signing and notarization
 secrets are added to the repository.
 
-## Screenshots
-
-![Messages dark mode chat interface](docs/assets/messages-preview-dark-anonymized.png)
-
-![Messages light mode chat interface](docs/assets/messages-preview-light-anonymized.png)
-
 ## Current Status
 
 The current app version is `0.1.3`.
