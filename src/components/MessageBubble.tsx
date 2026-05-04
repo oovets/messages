@@ -75,7 +75,7 @@ function renderTextWithLinks(text: string, isMe: boolean, superlightMode: boolea
           superlightMode
             ? "text-primary hover:text-primary/80"
             : isMe
-            ? "text-primary-foreground/90 hover:text-primary-foreground"
+            ? "text-white/90 hover:text-white"
             : "text-primary hover:text-primary/80"
         )}
         onClick={(e) => e.stopPropagation()}
@@ -191,7 +191,7 @@ export function MessageBubble({
                 : cn(
                     "shadow-sm transition-all duration-200",
                     cornerClass,
-                    isMe ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
+                    isMe ? "bg-[#0b93f6] text-white" : "bg-muted text-foreground",
                     message.pending && "opacity-70",
                     message.failed && "opacity-90 ring-1 ring-destructive/60"
                   )
