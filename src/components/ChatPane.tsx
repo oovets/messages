@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, MessageCircleDashed, SplitSquareHorizontal, SplitSquareVertical, X, MessageSquarePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { MessageList } from "@/components/MessageList";
@@ -31,6 +31,7 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
   const setPaneChat = useAppStore((s) => s.setPaneChat);
   const superlightMode = useAppStore((s) => s.superlightMode);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const paneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!chatGUID) return;
@@ -76,8 +77,16 @@ export function ChatPane({ paneId, chatGUID, isActive, canClose, showMobileBack 
 
   return (
     <div
+      ref={paneRef}
       onMouseDown={() => {
         if (!isActive) setActivePane(paneId);
+      }}
+      onClick={(e) => {
+        const target = e.target as HTMLElement | null;
+        if (!target) return;
+        if (target.closest('button, a, input, textarea, img, video, [role="button"]')) return;
+        if (window.getSelection()?.toString()) return;
+        paneRef.current?.querySelector("textarea")?.focus();
       }}
       className={cn(
         "flex flex-col h-full min-h-0 bg-background relative",

@@ -57,6 +57,11 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--app-font-family);
+    text-shadow: 0 1px 1px rgb(0 0 0 / 0.08);
+  }
+
+  .dark body {
+    text-shadow: 0 2px 4px rgb(0 0 0 / 0.9);
   }
 
   .scrollbar-autohide {
@@ -112,5 +117,9 @@
   .superlight-ui img,
   .superlight-ui video {
     display: none !important;
+  }
+
+  .dark.superlight-ui body {
+    text-shadow: 0 2px 4px rgb(0 0 0 / 0.9) !important;
   }
 }

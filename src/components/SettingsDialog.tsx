@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { cn } from "@/lib/utils";
 import { useAppStore } from "@/store/useAppStore";
 import { clearSecureConfig, saveSecureConfig } from "@/lib/secureConfig";
 import { isTauriRuntime } from "@/lib/tauriEnv";
@@ -35,7 +34,7 @@ function normalizeServerUrl(value: string): string {
   return /^https?:\/\//i.test(trimmed) ? trimmed : `http://${trimmed}`;
 }
 
-export function SettingsDialog({ compact = false }: SettingsDialogProps) {
+export function SettingsDialog(_props: SettingsDialogProps) {
   const {
     serverUrl,
     password,
@@ -66,7 +65,6 @@ export function SettingsDialog({ compact = false }: SettingsDialogProps) {
   const [saving, setSaving] = useState(false);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const autoOpenedRef = useRef(false);
-  const textMode = superlightMode && !compact;
 
   useEffect(() => {
     if (!open) return;
@@ -187,11 +185,10 @@ export function SettingsDialog({ compact = false }: SettingsDialogProps) {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          size={textMode ? "sm" : "icon"}
-          className={cn("h-8 text-muted-foreground", textMode ? "px-2 w-auto" : "w-8")}
+          size="icon"
+          className="h-8 w-8 text-muted-foreground"
         >
-          <Settings className={cn("h-4 w-4", textMode && "hidden")} />
-          {textMode ? "Settings" : null}
+          <Settings className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="scrollbar-autohide max-h-[85vh] overflow-y-auto sm:max-w-md">

@@ -139,18 +139,13 @@ export function ChatList() {
         <div className="flex items-center gap-1.5 min-w-0">
           <Button
             variant="ghost"
-            size={superlightMode && !sidebarHidden ? "sm" : "icon"}
-            className={cn(
-              "hidden h-8 shrink-0 text-muted-foreground md:inline-flex",
-              superlightMode && !sidebarHidden ? "w-auto px-2 text-xs" : "w-8"
-            )}
+            size="icon"
+            className="hidden h-8 w-8 shrink-0 text-muted-foreground md:inline-flex"
             onClick={toggleSidebarHidden}
             aria-label={sidebarHidden ? "Show sidebar" : "Hide sidebar"}
             title={sidebarHidden ? "Show sidebar" : "Hide sidebar"}
           >
-            {superlightMode && !sidebarHidden ? (
-              "Hide chats"
-            ) : sidebarHidden ? (
+            {sidebarHidden ? (
               <PanelLeftOpen className="h-4 w-4" />
             ) : (
               <PanelLeftClose className="h-4 w-4" />
@@ -246,10 +241,10 @@ export function ChatList() {
             {query && superlightMode ? (
               <button
                 onClick={() => setQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-muted-foreground"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 flex items-center justify-center text-muted-foreground"
                 aria-label="Clear search"
               >
-                clear
+                <X className="h-3 w-3" />
               </button>
             ) : null}
           </div>

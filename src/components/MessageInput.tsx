@@ -110,10 +110,10 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
           <button
             type="button"
             onClick={() => setReplyTarget(chatGUID, null)}
-            className={cn("h-6 flex items-center justify-center text-muted-foreground", superlightMode ? "px-1 text-xs w-auto" : "w-6 rounded-full hover:bg-muted")}
+            className={cn("h-6 w-6 flex items-center justify-center text-muted-foreground", !superlightMode && "rounded-full hover:bg-muted")}
             aria-label="Cancel reply"
           >
-            {superlightMode ? "cancel" : <X className="h-3.5 w-3.5" />}
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
@@ -121,13 +121,13 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
         <button
           type="button"
           className={cn(
-            "h-9 text-muted-foreground flex items-center justify-center shrink-0",
-            superlightMode ? "px-2 w-auto text-xs" : "w-9 rounded-full hover:bg-muted transition-colors"
+            "h-9 w-9 text-muted-foreground flex items-center justify-center shrink-0",
+            !superlightMode && "rounded-full hover:bg-muted transition-colors"
           )}
           aria-label="Attach file"
           title="Attachments coming soon"
         >
-          {superlightMode ? "Attach" : <Paperclip className="h-4 w-4" />}
+          <Paperclip className="h-4 w-4" />
         </button>
 
         <div className="flex-1 relative">
@@ -142,7 +142,7 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
             className={cn(
               "scrollbar-autohide w-full resize-none pl-4 py-2.5 text-sm",
               superlightMode
-                ? "bg-background pr-16 placeholder:text-muted-foreground focus:outline-none min-h-[40px] max-h-[140px] overflow-y-auto"
+                ? "bg-background pr-11 placeholder:text-muted-foreground focus:outline-none min-h-[40px] max-h-[140px] overflow-y-auto"
                 : "border border-input rounded-2xl bg-muted/40 pr-11 placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring min-h-[40px] max-h-[140px] overflow-y-auto transition-shadow"
             )}
           />
@@ -151,10 +151,10 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
             disabled={!hasText}
             aria-label="Send message"
             className={cn(
-              "absolute right-1.5 bottom-1.5 flex items-center justify-center shrink-0",
+              "absolute right-1.5 bottom-1.5 h-7 w-7 flex items-center justify-center shrink-0",
               superlightMode
-                ? "h-7 px-2 text-xs"
-                : "h-7 w-7 rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 ease-out active:scale-90",
+                ? "text-foreground"
+                : "rounded-full bg-primary text-primary-foreground shadow-sm transition-all duration-150 ease-out active:scale-90",
               superlightMode
                 ? hasText
                   ? "opacity-100"
@@ -164,7 +164,7 @@ export function MessageInput({ chatGUID }: MessageInputProps) {
                 : "opacity-0 scale-50 pointer-events-none"
             )}
           >
-            {superlightMode ? "Send" : <ArrowUp className="h-4 w-4" strokeWidth={2.5} />}
+            <ArrowUp className="h-4 w-4" strokeWidth={2.5} />
           </button>
         </div>
       </div>
